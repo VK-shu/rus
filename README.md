@@ -2,17 +2,77 @@
 
 ## BUILD
 
-You will need the following libraries installed on your system: 
-1. Boost 1.48
--- program_options 
--- chrono
--- timer
--- system
-2. The GNU Multiple Precision Arithmetic Library (gmp and gmpxx)
-3. The GNU MPFR Library (mpfr)
+### Requirements
 
-Also C++ compiler supporting C++11 is necessary.
-Information about program use available through --help option.
+- **C++17** compiler (GCC or Clang)
+- **CMake** 3.16 or newer
+- **OpenMP**
+- **Boost** 1.70 or newer
+  - `program_options`
+  - `chrono`
+  - `timer`
+  - `system`
+- **GMP** (`libgmp`, `libgmpxx`)
+- **MPFR** (`libmpfr`)
+- **PARI/GP** (`libpari`) — required by the norm solver; often must be built from source if not available from your package manager
+
+Information about program use is available through the `--help` option.
+
+### Install dependencies (Ubuntu / Debian / WSL)
+
+```bash
+sudo apt-get update
+sudo apt-get install -y \
+  build-essential cmake \
+  libboost-all-dev \
+  libgmp-dev libmpfr-dev
+```
+
+Install PARI if `libpari-dev` is available:
+
+```bash
+sudo apt-get install -y pari-gp libpari-dev
+```
+
+If PARI is not available or linking fails, build from source:
+
+```bash
+wget http://pari.math.u-bordeaux.fr/pub/pari/unix/pari-2.15.5.tar.gz
+tar -xvf pari-2.15.5.tar.gz
+cd pari-2.15.5
+./Configure
+make
+sudo make install
+cp misc/gprc.dft ~/.gprc
+cd ..
+sudo ldconfig
+```
+
+### Compile
+
+From the `external/rus` directory, using an out-of-source build (recommended):
+
+```bash
+cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+cmake --build build -j$(nproc)
+```
+
+The binary is produced at `build/rusSyn`.
+
+In-source build is also supported:
+
+```bash
+cmake -DCMAKE_BUILD_TYPE=Release .
+make -j$(nproc)
+```
+
+The binary is produced at `./rusSyn`.
+
+### Verify
+
+```bash
+./rusSyn --about
+```
 
 ## ABOUT 
 The program code based on results of https://arxiv.org/abs/1409.3552. 
@@ -31,7 +91,9 @@ In addition, a significant portion of the code leverages from [SQCT](https://git
 
 ### Build Single Gate
 
-(todo)
+```bash
+./rusSyn -T pi/16 -O out.qasm -F 5 -E 1e-5 -C g-count
+```
 
 ### Build Gate Database
 Add `--database`
