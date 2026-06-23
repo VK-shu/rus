@@ -24,6 +24,29 @@ namespace fs = std::filesystem;
 #else
 namespace fs = std::experimental::filesystem;
 #endif
+
+static constexpr const char *kRusOutputDir = "output";
+
+static fs::path rus_output_file_path(const string &user_path)
+{
+    fs::path p(user_path);
+    const auto parent = p.parent_path();
+    if (!parent.empty() && parent != ".")
+        return p;
+    return fs::path(kRusOutputDir) / p.filename();
+}
+
+static fs::path rus_output_folder_path(const string &user_path)
+{
+    fs::path p(user_path);
+    const auto parent = p.parent_path();
+    if (!parent.empty() && parent != ".")
+        return p;
+    if (p.extension() == ".qasm")
+        return fs::path(kRusOutputDir);
+    return fs::path(kRusOutputDir) / p;
+}
+
 static void print_about_message()
 {
     cout << "Copyright (c) 2013 Vadym Kliuchnikov sqct(dot)software(at)gmail(dot)com" << endl
@@ -69,7 +92,7 @@ int main(int ac, char *av[])
                  "Theta value for the unitary approximation. Example: -T pi/16")
 
                     ("output,O", po::value<string>(&(output_file_name))->implicit_value("out.qasm"),
-                     "Output file(directory) name. Example: -O out.qasm")
+                     "Output file or directory. Relative paths are written under output/. Example: -O out.qasm")
 
                         ("debuglevel,D", po::value<int>(&debug_level)->default_value(0), "Debug level")
 
@@ -79,7 +102,8 @@ int main(int ac, char *av[])
 
                                     ("criterion,C", po::value<string>(&crit)->default_value("t-count"), "Criterion for selecting the best circuit. Example: -c t-count")
 
-                                        ("iterations,I", po::value<int>(&iterations)->implicit_value(10000), "Number of iterations in PSLQ stage. Default: 10000*effort. Example: -I 10000")
+                                        ("iterations,I", po::value<int>(&iterations)->implicit_value(10000),
+                                         "PSLQ iteration limit. If omitted, uses internal default (100000000). Example: -I 200000")
 
                                             ("precision,P", po::value<string>(&precision_str)->default_value("pi/128"), "Precision for the library generation. Example: -p 1e-2")
 
@@ -122,8 +146,7 @@ int main(int ac, char *av[])
         else
             criterion = RUS::CRITERION::T_COUNT;
 
-        if (vm.count("iterations") == 0)
-            iterations = 10000 * effort;
+        const bool pslq_iters_from_cli = vm.count("iterations") > 0;
 
         mpf_class epsilon;
         epsilon = RUS::parse_theta(epsilon_str);
@@ -135,7 +158,7 @@ int main(int ac, char *av[])
             if (debug_level >= 2)
                 cout << "Theta: " << theta << endl;
 
-            RUS rus(debug_level, epsilon, effort, iterations, criterion);
+            RUS rus(debug_level, epsilon, effort, iterations, criterion, pslq_iters_from_cli);
 
             circuit res;
             btm::cpu_timer timer;
@@ -143,12 +166,17 @@ int main(int ac, char *av[])
             rus.run(theta, res);
             if (debug_level >= 1)
                 cout << "Time: " << timer.format() << endl;
-            std::ofstream ofs(output_file_name);
+            const fs::path out_path = rus_output_file_path(output_file_name);
+            fs::create_directories(out_path.parent_path());
+            std::ofstream ofs(out_path);
             QasmGenerator::to_rus_qasm(res, ofs, "", "", false);
+            if (debug_level >= 1)
+                cout << "Wrote " << out_path << endl;
         }
         else
         {
-            string output_folder_name = output_file_name;
+            const fs::path output_folder_path = rus_output_folder_path(output_file_name);
+            const string output_folder_name = output_folder_path.string();
             fs::create_directories(output_folder_name);
             mpf_class precision;
             precision = RUS::parse_theta(precision_str);
@@ -163,7 +191,7 @@ int main(int ac, char *av[])
                 output_file_name = t1 + "_" + t2;
             }
 
-            RUS rus(debug_level, epsilon, effort, iterations, criterion);
+            RUS rus(debug_level, epsilon, effort, iterations, criterion, pslq_iters_from_cli);
             for (int i = -unit_count + 1; i < unit_count; i++)
             {
                 mpf_class theta = i * precision;

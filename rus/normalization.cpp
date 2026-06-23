@@ -60,7 +60,7 @@ Normalization::OmegaRing Normalization::solve_y()
 {
     using std::abs;
     int_t max_try = 20;
-    normSolver ns;
+    const normSolver &ns = normSolver::instance();
     OmegaRing y;
     while (--max_try >= 0)
     {

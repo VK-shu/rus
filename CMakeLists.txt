@@ -129,24 +129,25 @@ find_package_handle_standard_args(PARI DEFAULT_MSG PARI_INCLUDE_DIR PARI_LIBRARY
 
 
 add_executable(rusSyn
- requestprocessor.cpp
- hprhelpers.cpp
- resring.cpp
- rint.cpp
- matrix2x2.cpp
- vector2.cpp
- output.cpp
- gatelibrary.cpp
- symbolic_angle.cpp
- serializers.h
- timemeasurement.h
+ apps/main_rus.cpp
 
- 
+ core/requestprocessor.cpp
+ core/hprhelpers.cpp
+ core/resring.cpp
+ core/rint.cpp
+ core/matrix2x2.cpp
+ core/vector2.cpp
+ core/output.cpp
+ core/gatelibrary.cpp
+ core/symbolic_angle.cpp
+ core/serializers.h
+ core/timemeasurement.h
+
  es/numbersgen.cpp
  es/optsequencegenerator.cpp
  es/seqlookupcliff.cpp
  es/exactdecomposer.cpp
- 
+
  appr/zrot_cache.cpp
  appr/toptzrot2.cpp
  appr/normsolver.cpp
@@ -162,17 +163,16 @@ add_executable(rusSyn
  rus/pslq.cpp
  rus/rus.cpp
 
- test.cpp
- factorzs2.cpp
- tcount.cpp
- solvenormequation.cpp
- fixedpoint.cpp
-
- main_rus.cpp
+ core/test.cpp
+ core/factorzs2.cpp
+ core/tcount.cpp
+ core/solvenormequation.cpp
+ core/fixedpoint.cpp
 )
 
 target_include_directories(rusSyn PRIVATE
   ${CMAKE_CURRENT_SOURCE_DIR}
+  ${CMAKE_CURRENT_SOURCE_DIR}/core
   ${Boost_INCLUDE_DIRS}
   ${GMP_INCLUDE_DIR}
   ${MPFR_INCLUDE_DIR}

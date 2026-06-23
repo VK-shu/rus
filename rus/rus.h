@@ -23,9 +23,10 @@ public:
         T_COUNT, // T count
         G_COUNT, // gate count
     };
-    RUS(int debug_level, const mpf_class &epsilon, int effort_level, CRITERION criterion);
+    static constexpr int DEFAULT_PSLQ_MAX_ITER = 100000000;
 
-    RUS(int debug_level, const mpf_class &epsilon, int effort_level, int pslq_iters, CRITERION criterion);
+    RUS(int debug_level, const mpf_class &epsilon, int effort_level, int pslq_iters, CRITERION criterion,
+        bool pslq_iters_from_cli = false);
 
     void run(const mpf_class &theta, circuit &best_cir);
 
@@ -49,6 +50,7 @@ private:
     mpf_class eps;
     int effort; // effort level, >=1
     int pslq_max_iter;
+    bool pslq_iters_from_cli;
     CRITERION crit;
 };
 

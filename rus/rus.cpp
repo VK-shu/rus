@@ -1,15 +1,23 @@
 #include "rus.h"
+#include <mpfr.h>
 
-RUS::RUS(int debug_level, const mpf_class &epsilon, int effort_level, CRITERION criterion)
-    : RUS(debug_level, epsilon, effort_level, 10000 * effort_level, criterion) {}
-RUS::RUS(int debug_level, const mpf_class &epsilon, int effort_level, int pslq_iters, CRITERION criterion)
+RUS::RUS(int debug_level, const mpf_class &epsilon, int effort_level, int pslq_iters, CRITERION criterion,
+         bool pslq_iters_from_cli)
     : idb(debug_level),
-      eps(epsilon), effort(effort_level), pslq_max_iter(pslq_iters), crit(criterion) {}
+      eps(epsilon), effort(effort_level), pslq_max_iter(pslq_iters), pslq_iters_from_cli(pslq_iters_from_cli),
+      crit(criterion)
+{
+    mpf_set_default_prec(2048);
+    mpfr_set_default_prec(2048);
+}
 
 void RUS::run(const mpf_class &theta, circuit &best_cir)
 {
     if (idb >= 1)
         std::cout << "Stage 1: PSLQ\n";
+
+    if (!pslq_iters_from_cli)
+        pslq_max_iter = DEFAULT_PSLQ_MAX_ITER;
 
     std::vector<std::complex<mpf_class>> x = create_vector(theta);
     auto get_error = gen_error_function(theta);

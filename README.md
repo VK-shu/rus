@@ -80,12 +80,23 @@ In addition to Boost, The GNU Multiple Precision Arithmetic Library, The GNU MPF
 mpfr::real by Christian Schneider <software(at)chschneider(dot)eu> is used for high precision
 In addition, a significant portion of the code leverages from [SQCT](https://github.com/vadym-kl/sqct).
 
-## DIRECTORY STRUCTURE 
-* sk -- implementation of the Solovay-Kitaev algorithm
-* es -- exact synthesis algorithm
-* theory -- numerical proof of result from arXiv:1206.5236, tests of exact synthesis algorithm 
-* appr -- optimal round off of unitaries
-* rus -- the rus implementation
+## DIRECTORY STRUCTURE
+
+See **[docs/STRUCTURE.md](docs/STRUCTURE.md)** for the full file layout.
+
+```
+apps/     Entry points (rusSyn → main_rus.cpp)
+core/     Shared library (rings, matrices, circuit I/O, utilities)
+rus/      RUS algorithm (PSLQ → Normalization → synthesis)
+appr/     Single-qubit unitary approximation
+es/       Exact Clifford+T synthesis
+sk/       Solovay–Kitaev (not linked into rusSyn)
+theory/   Paper numerical verification (not linked into rusSyn)
+ttmath/   Third-party big-integer library
+docs/     Project documentation
+output/   QASM output from rusSyn
+tests/    Mathematica notebooks
+```
 
 ## USAGE
 
@@ -94,6 +105,8 @@ In addition, a significant portion of the code leverages from [SQCT](https://git
 ```bash
 ./rusSyn -T pi/16 -O out.qasm -F 5 -E 1e-5 -C g-count
 ```
+
+Output is written to `output/out.qasm` by default (relative `-O` paths go under `output/`).
 
 ### Build Gate Database
 Add `--database`

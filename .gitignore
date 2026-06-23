@@ -9,5 +9,9 @@ Makefile
 *.cmake
 *.cbp
 out
+output/*
+!output/.gitkeep
 doc
 sqct
+rusSyn
+*.qasm
