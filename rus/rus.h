@@ -23,6 +23,7 @@ public:
         T_COUNT, // T count
         G_COUNT, // gate count
     };
+    static constexpr int INITIAL_PSLQ_MAX_ITER = 1000000;
     static constexpr int DEFAULT_PSLQ_MAX_ITER = 100000000;
 
     RUS(int debug_level, const mpf_class &epsilon, int effort_level, int pslq_iters, CRITERION criterion,
@@ -46,6 +47,8 @@ private:
     gen_error_function(const mpf_class &theta);
     static int count_t(const circuit &cir);
     static int count_gate(const circuit &cir);
+    static mpf_class compute_phase_error(const Normalization::OmegaRing &z, const mpf_class &theta);
+    static std::complex<mpf_class> omega_ring_to_mpf_complex(const Normalization::OmegaRing &z, int de = 0);
     int idb; // debug level
     mpf_class eps;
     int effort; // effort level, >=1

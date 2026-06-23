@@ -23,6 +23,7 @@
 #include <vector>
 #include <iostream>
 #include <deque>
+#include <stdexcept>
 
 using namespace std;
 
@@ -35,7 +36,7 @@ exactDecomposer::exactDecomposer()
     }
 }
 
-void exactDecomposer::decompose( const matrix2x2<mpz_class>& matr, circuit& c) const
+bool exactDecomposer::decompose( const matrix2x2<mpz_class>& matr, circuit& c) const
 {
     typedef ring_int< resring<8> > rr8;
     typedef matrix2x2< resring<8> > mrr8;
@@ -75,18 +76,23 @@ void exactDecomposer::decompose( const matrix2x2<mpz_class>& matr, circuit& c) c
                 break;
             }
         }
-        if( !found ) return;
+        if( !found )
+            return false;
     }
 
     circuit r;
     slC.find(current,r);
+    if( r.empty() )
+        return false;
     c.push_back(r);
+    return true;
 }
 
 circuit exactDecomposer::decompose(const matrix2x2<mpz_class> &matr)
 {
   circuit tmp;
-  instance().decompose(matr,tmp);
+  if( !instance().decompose(matr, tmp) )
+      throw std::runtime_error("exactDecomposer: decomposition failed");
   return tmp;
 }
 

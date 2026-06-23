@@ -55,6 +55,7 @@ void PslqComplex::run()
         if (status != STATUS::SUCCESS)
             break;
         status = STATUS::ITERATION;
+        it_count = itm;
         size_t min_y_id = min(y).id;
         r_sets.insert(b.col(min_y_id));
     }

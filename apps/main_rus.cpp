@@ -47,6 +47,24 @@ static fs::path rus_output_folder_path(const string &user_path)
     return fs::path(kRusOutputDir) / p;
 }
 
+static void validate_cli_params(int effort, const mpf_class &epsilon, int debug_level, int iterations,
+                                bool pslq_iters_from_cli, const string &crit, bool database_mode,
+                                const mpf_class &precision)
+{
+    if (effort < 1)
+        throw std::runtime_error("effort (-F) must be >= 1");
+    if (epsilon <= 0)
+        throw std::runtime_error("epsilon (-E) must be > 0");
+    if (debug_level < 0)
+        throw std::runtime_error("debuglevel (-D) must be >= 0");
+    if (pslq_iters_from_cli && iterations <= 0)
+        throw std::runtime_error("iterations (-I) must be > 0");
+    if (crit != "g-count" && crit != "t-count")
+        throw std::runtime_error("criterion (-C) must be g-count or t-count");
+    if (database_mode && precision <= 0)
+        throw std::runtime_error("precision (-P) must be > 0");
+}
+
 static void print_about_message()
 {
     cout << "Copyright (c) 2013 Vadym Kliuchnikov sqct(dot)software(at)gmail(dot)com" << endl
@@ -96,14 +114,14 @@ int main(int ac, char *av[])
 
                         ("debuglevel,D", po::value<int>(&debug_level)->default_value(0), "Debug level")
 
-                            ("effort,F", po::value<int>(&effort)->default_value(0), "Effort level(>=1)")
+                            ("effort,F", po::value<int>(&effort)->default_value(1), "Effort level (>=1). Default: 1")
 
                                 ("epsilon,E", po::value<string>(&epsilon_str)->default_value("1e-10"), "Epsilon value for the unitary approximation. Example: -e 1e-10")
 
                                     ("criterion,C", po::value<string>(&crit)->default_value("t-count"), "Criterion for selecting the best circuit. Example: -c t-count")
 
                                         ("iterations,I", po::value<int>(&iterations)->implicit_value(10000),
-                                         "PSLQ iteration limit. If omitted, uses internal default (100000000). Example: -I 200000")
+                                         "PSLQ iteration limit per effort round. If omitted, starts at 1e6 and doubles up to 1e8. Example: -I 200000")
 
                                             ("precision,P", po::value<string>(&precision_str)->default_value("pi/128"), "Precision for the library generation. Example: -p 1e-2")
 
@@ -147,10 +165,16 @@ int main(int ac, char *av[])
             criterion = RUS::CRITERION::T_COUNT;
 
         const bool pslq_iters_from_cli = vm.count("iterations") > 0;
+        const bool database_mode = vm.count("database") > 0;
 
         mpf_class epsilon;
         epsilon = RUS::parse_theta(epsilon_str);
-        if (!vm.count("database"))
+        mpf_class precision;
+        precision = RUS::parse_theta(precision_str);
+        validate_cli_params(effort, epsilon, debug_level, iterations, pslq_iters_from_cli, crit,
+                            database_mode, precision);
+
+        if (!database_mode)
         {
             mpf_class theta;
             theta = RUS::parse_theta(theta_str);
@@ -178,8 +202,6 @@ int main(int ac, char *av[])
             const fs::path output_folder_path = rus_output_folder_path(output_file_name);
             const string output_folder_name = output_folder_path.string();
             fs::create_directories(output_folder_name);
-            mpf_class precision;
-            precision = RUS::parse_theta(precision_str);
             std::string precision_str_clean = precision_str, epsilon_str_clean = epsilon_str;
 
             // ? change to +-pi/4 or pi/2~0 ?

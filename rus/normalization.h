@@ -45,10 +45,10 @@ private:
     inline real_t max(const real_t &a, const real_t &b) { return a > b ? a : b; }
 
     OmegaRing z_poly;
-    const int_t L1;
-    const real_t ita;
-    const int_t R0;
-    const real_t r_dot_upper_bound;
+    int_t L1;
+    real_t ita;
+    int_t R0;
+    real_t r_dot_upper_bound;
     real_t x_min;
     real_t x_max;
     RootTwoRing r;

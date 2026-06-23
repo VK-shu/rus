@@ -176,7 +176,8 @@ Used mainly via `core/fixedpoint.h`.
 | File | Description |
 |------|-------------|
 | `STRUCTURE.md` | This file: directory layout |
-| `RUS_SEGFAULT_FIX.md` | rusSyn segfault fix log |
+| `RUS_SEGFAULT_FIX.md` | rusSyn segfault fix log (Chinese) |
+| `RUS_FAILURE_HANDLING.md` | Failure-path hardening lab notes (Chinese) |
 
 ---
 

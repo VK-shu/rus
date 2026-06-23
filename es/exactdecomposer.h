@@ -29,8 +29,9 @@ class exactDecomposer
 public:
     /// \brief Initializes generators
     exactDecomposer();
-    /// \brief Decomposes matr into circuit c
-    void decompose( const matrix2x2<mpz_class> &matr, circuit& c ) const;
+    /// \brief Decomposes matr into circuit c. Returns false if decomposition fails.
+    bool decompose( const matrix2x2<mpz_class> &matr, circuit& c ) const;
+    /// \brief Decomposes matr; throws std::runtime_error on failure.
     static circuit decompose( const matrix2x2<mpz_class> &matr );
     static const exactDecomposer& instance();
 private:
